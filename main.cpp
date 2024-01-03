@@ -61,9 +61,13 @@ glm::mat4 M_rot = glm::transpose(glm::make_mat4(init_rot_M));
 glm::vec3 front = {0, 0, -1};
 glm::vec3 up, right;
 
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
 int main(int argc, char** argv)
 {
-    const int w_w = 640, w_h = 480;
+    const int w_w = 1280, w_h = 720;
     Window window(w_w, w_h, "OpenGL Test", argc <= 3);
     glfwSetKeyCallback(window.get(), keyCallback_);
     glfwSwapInterval(1);
@@ -168,13 +172,17 @@ int main(int argc, char** argv)
         frame_cnt++;
         fps_sum += io.Framerate;
         {
-            int limit = (int)fps / 10 + 1;
+            int limit = (int)fps / 2 + 1;
             if (frame_cnt == limit) {
                 fps = fps_sum / (float)limit;
                 frame_cnt = 0;
                 fps_sum = 0;
             }
         }
+
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
         // Process input
         glfwPollEvents();
@@ -297,13 +305,16 @@ void processInput(GLFWwindow* window)
 
     glm::vec3 right_ = glm::normalize(right);
 
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) fov -= 1;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) fov += 1;
+    float fov_a = 40 * deltaTime;
+
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) fov -= fov_a;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) fov += fov_a;
 
     fov = std::min(max_fov, fov);
     fov = std::max(10.0f, fov);
 
     float rot_a = 1.2f - (max_fov - fov) / max_fov;
+    rot_a *= deltaTime * 40;
 
     // Passive rotation, so the rotation amount is the
     // negative of the desired rotation direction.

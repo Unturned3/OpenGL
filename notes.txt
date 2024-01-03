@@ -1,0 +1,9 @@
+
+# Prevent screen tearing on Linux (GPU36)
+
+	https://askubuntu.com/a/1185328
+
+	nvidia-settings --assign CurrentMetaMode="nvidia-auto-select +0+0 { ForceFullCompositionPipeline = On }"
+
+
+
